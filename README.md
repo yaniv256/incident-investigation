@@ -33,7 +33,7 @@ This isn't self-flagellation; it's calibration. Three reasons it holds:
 
 Truth and pain are positively correlated in debugging. Sorting hypotheses by descending pain converges faster than sorting by descending comfort — which is the sort your unaided intuition performs.
 
-The full argument, and how to turn it into a probability "pain pass," is in [`skills/incident-investigation/SKILL.md`](skills/incident-investigation/SKILL.md).
+The full argument, and how to turn it into a probability "pain pass," is in [`SKILL.md`](SKILL.md).
 
 ## Other load-bearing principles
 
@@ -43,21 +43,36 @@ The full argument, and how to turn it into a probability "pain pass," is in [`sk
 
 ## Layout
 
+The repo root **is** the skill — so it drops straight into any framework's skills
+directory with no wrapper:
+
 ```
-skills/incident-investigation/
-├── SKILL.md                       # the methodology (start here)
-├── references/
-│   ├── anti-pattern-catalog.md    # 8 standard anti-patterns + how to find them
-│   ├── assumption-lock-in.md      # the category-pivot protocol (three strikes)
-│   ├── audit-report-template.md   # merge parallel search findings
-│   └── investigation-template.md  # copy this to start a new investigation
-└── examples/
-    └── session-cache-oom-investigation.md   # a full worked walkthrough
+SKILL.md                       # the methodology (start here)
+references/
+├── anti-pattern-catalog.md    # 8 standard anti-patterns + how to find them
+├── assumption-lock-in.md      # the category-pivot protocol (three strikes)
+├── audit-report-template.md   # merge parallel search findings
+└── investigation-template.md  # copy this to start a new investigation
+examples/
+└── session-cache-oom-investigation.md   # a full worked walkthrough
 ```
 
-## Using it as a Claude Code skill
+(`README.md` and `LICENSE` sit alongside; skill loaders read `SKILL.md` and ignore the rest.)
 
-Drop `skills/incident-investigation/` into your project's skills directory (e.g. `.claude/skills/`), or add this repo as a plugin. The skill activates when you ask to investigate a bug, do a root-cause analysis, or run a postmortem. Or just open `SKILL.md` and follow it by hand.
+## Using it
+
+Because the repo root is the skill, including it is trivial in any agent
+framework that loads Markdown skills:
+
+- **As a git submodule (recommended):** add this repo directly at the skill's
+  path in your project — e.g.
+  `git submodule add https://github.com/yaniv256/incident-investigation.git <your-skills-dir>/incident-investigation`.
+  `SKILL.md` lands exactly where the loader expects it, with no symlink or
+  per-project wrapper.
+- **As a copy:** drop the repo's contents into `<your-skills-dir>/incident-investigation/`.
+- **By hand:** just open `SKILL.md` and follow the methodology.
+
+The skill activates when you ask to investigate a bug, do a root-cause analysis, or run a postmortem.
 
 ## License
 
