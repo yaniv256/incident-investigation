@@ -9,7 +9,8 @@ It's packaged as an agent **skill** (works with Claude Code and any harness that
 A **10-phase investigation** that produces a single Markdown artifact as it goes — the investigation file *is* the deliverable:
 
 1. Open the investigation (symptom, impact, an established timeline of *confirmed* events)
-2. Initial hypotheses — each with a probability and its load-bearing assumptions
+   - *(Phase 1.5)* Calibrate your generative prior — before writing a single hypothesis, set the expectation out loud: most will be wrong, the real cause is probably unlisted.
+2. Initial hypotheses — each with a probability, its load-bearing assumptions, and a **mandatory "none of the above" row** carrying real mass
 3. Evidence collection (non-destructive: read before you touch)
 4. Revised hypotheses (probabilities move as evidence lands)
 5. Experimentation (targeted, reversible, predicted-before-run)
@@ -35,11 +36,26 @@ Truth and pain are positively correlated in debugging. Sorting hypotheses by des
 
 The full argument, and how to turn it into a probability "pain pass," is in [`SKILL.md`](SKILL.md).
 
+## The deeper idea: you cannot think your way to the answer
+
+Maximum-pain tells you how to *rank* the hypotheses you have. But a harder truth sits underneath it — the one most investigations quietly ignore: **the true cause is usually not on your list at all, and no amount of further thinking will put it there.**
+
+- **Why your first-pass list misses (by construction).** On a system you built, every failure you could *imagine* you already defended against while building it — you guarded the race you foresaw, validated the input you pictured. So the bugs that survive to become incidents are, almost by definition, the ones you *didn't* imagine. Your hypothesis list is drawn from the very same imagination that already eliminated everything it could think of. That is why measured first-pass hit-rates are a small minority — often single digits, and **for no one, human or agent, anywhere near half.**
+
+- **So an experiment isn't a referee — it's a generator.** Its job is not merely to pick the winner among your named hypotheses. It is to *manufacture* the hypothesis you could not think of, by putting you in contact with data your imagination did not predict. When your whole list is dying one hypothesis at a time, that is not failure — it is the signal to go get more data, because the answer lives in your blind spot and only fresh observation reaches it.
+
+- **Surprise is the compass — so celebrate it.** Because the cause is outside your imagination, the felt-sense of a *healthy* investigation is not "aha, confirmed" — it is *"wait, what? that's not what I expected."* Confirmation keeps you inside your own model, which is exactly where the cause is not; surprise is the sound of the blind spot cracking open. The skill makes this a ritual: **mandatory champagne (🍾) every time you're shocked** — mark it in the file and stop to mine it, instead of the untrained reflex of explaining it away.
+
+- **Probabilities are never fully objective.** The deepest consequence: your hypothesis probabilities sum to 1 over the hypotheses *you were able to generate*, so every one is secretly conditioned on your own imagination. The "none of the above" mass isn't a fact about the world — it's a measurement of *your own* generative limitation, a hypothesis about *you*. You can't factor the observer out of the estimate; the events outside you and your capacity to conceive them are entangled. Objectivity isn't reasoned to from the inside — it is *earned* by letting the world push back.
+
+These live in `SKILL.md` as Core Principles #11–#12, and they reshape the whole method: hold your list at a low prior, keep a mandatory mass-carrying "none of the above" row, and spend your experiments trying to *reveal* a new cause rather than merely referee the named few.
+
 ## Other load-bearing principles
 
 - **Hypotheses span multiple categories** — a monoculture of hypotheses is the biggest risk; three strikes in one category triggers a mandatory pivot.
 - **The code graph, not grep** — reason about code through a code-index (callers, callees, data-flow), which answers "who calls this?" and "which of these lacks the paired guard?" — the questions an investigation actually asks. Grep is the fallback, not the default.
 - **Fix the instance, then the class** — the bug that caused this incident almost always exists elsewhere.
+- **Attractor hypotheses need a gate, not a caution** — some exculpatory explanations ("the input wasn't trusted," "the platform blocked it") are *attractors*: whatever the real failure, your reasoning keeps sliding into the same convenient story. A note-to-self doesn't defeat them (a quiet caution loses the competition for attention to the loud attractor); a **mandatory step at the point of temptation** does — e.g. a required cheap A/B before you build the privileged escape hatch.
 
 ## Layout
 
