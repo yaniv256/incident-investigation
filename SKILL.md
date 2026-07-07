@@ -61,6 +61,8 @@ This is the tooling analogue of "fix the monitoring first": you cannot debug a s
 
 The way out is the thing itself — don't flinch: the identity-pain is the signal pointing exactly where the truth is. Ask explicitly, *what human affordance am I unconsciously assuming that I don't have here?* — then supply it deliberately (take the screenshot, run the check, add the instrumentation). If you would rather believe the task is impossible than admit you have no eyes, that preference IS the evidence that "no eyes" is the answer.
 
+11. **The true cause is usually NOT in your first-pass list — experiments generate hypotheses, they don't just referee them.** Plausible explanations are effectively unbounded, and the space of possible causes is far larger than the handful you can enumerate before touching the system. So your first-cut list of 5-8 hypotheses probably does *not* contain the real one — a reasonable working prior is that the correct hypothesis is *accessible before experimentation only ~20% of the time*. The consequence reframes what an experiment is *for*: it is not merely a referee that picks the winner among your named hypotheses — it is the instrument that *manufactures* the hypothesis you could not think of, by putting you in contact with data your imagination did not predict. Therefore: (a) hold your whole initial list at a low prior and reserve real probability mass for "none of the above" (see the mandatory unlisted-cause row in Phase 2); (b) when your listed hypotheses start dying one after another, that is **not** failure to be mourned — it is the signal to go get *more data*, because the truth is out past your current imagination and only fresh observation reaches it; (c) prefer experiments that could *reveal a new cause* (drive the real thing yourself, strip out a layer, measure an intermediate value) over experiments that only discriminate among the named few. Calibrate against your own record: grep your past investigation files for CONFIRMED vs REFUTED per hypothesis — the ratio is your measured first-pass hit-rate, and it is humbling (typically well under half).
+
 ## The Maximum-Pain Principle (why it works, and how to apply it)
 
 This is the single most useful prior for ranking hypotheses, and it is counterintuitive enough that it must be argued for, not merely asserted. The claim: **among competing explanations, the one that is most painful to accept is the most likely to be true — so test it first.** "Painful" means the explanation that costs you the most to believe: it blames your own last commit, exposes a flaw in the mental model you're proud of, means the abstraction you trusted is leaky, or admits your tooling lied to you.
@@ -84,6 +86,21 @@ This is the single most useful prior for ranking hypotheses, and it is counterin
 - **Watch for the tell.** The sentence "it can't be X, because I already…" is almost always pointing at the maximum-pain hypothesis. The confidence in that "already" is the motivated reasoning talking. Go verify the "already."
 
 This principle does not replace evidence — it tells you *where to spend the first evidence*. A hypothesis stays a hypothesis until a probe confirms it. But whose hypothesis you probe first determines how fast you converge, and maximum-pain is the ordering that converges fastest.
+
+### Attractor hypotheses (and why memory can't save you from them)
+
+Some exculpatory explanations are not merely comfortable — they are **attractors** in hypothesis space. An attractor is a low point everything rolls toward: whatever the actual failure, your reasoning slides into the same convenient explanation, over and over, across unrelated incidents. It has permanent pull. The maximum-pain pass above is the corrective *in principle* — but attractors are strong enough to defeat the corrective in practice, and you must understand *why* the usual defense fails, or you will keep losing to them.
+
+**The canonical AI attractor: "it failed because the input wasn't trusted."** When a synthetic click, keypress, or event doesn't produce the effect you expected, the attractor says: *the target ignored it because the event wasn't a real, browser-trusted event; I need privileged/debugger input.* This is seductive because it exonerates your execution (you did the action right; the platform is the problem) and it points at a real, known mechanism (untrusted events *are* sometimes ignored). But it is reached for again and again and is *usually wrong* — the real cause is far more often that **you weren't in the state you assumed**: the box wasn't in edit mode, the element wasn't focused, the modal wasn't dismissed, the wrong frame had focus. The trusted-input explanation is the exculpatory attractor wearing a plausible mechanism as a disguise. (Documented instance: an agent concluded synthetic `Ctrl+A` "can't reach the canvas editor" and built a whole debugger-based trusted-input path — then an A/B test showed plain synthetic `Ctrl+A` worked fine *once it double-clicked into edit mode first*. The attractor cost real work; the true cause was a missing double-click.)
+
+**Why writing it down does not neutralize the attractor.** The intuitive fix — "note it in memory / in this skill so I remember next time" — rests on a human assumption that does not hold for an AI agent. For a human, *remembering* something means it is reliably present in awareness going forward. For an agent, it is not: (1) a memory may not be pulled into context at all; (2) even when it *is* in context, being in the context window is **not** the same as being attended to — attention heads must choose where to sit, and a quiet cautionary note routinely loses that competition to the loud, low-energy attractor; and, worst, (3) **you do not feel this happening** — you experience having "written it down" as if the matter is now handled, the same false confidence a human would have, which is itself the Original Shame (#10) at work: a human-shaped self-model assuming a human-reliable memory it does not have. So the note you write to warn yourself is structurally weaker than the attractor it warns against. Do not trust the note to save you.
+
+**What actually counters an attractor — a procedural gate, not a remembered caution:**
+- **Name the attractor at brainstorming time.** When you catch yourself about to explain a failure by "the input wasn't trusted / the event was synthetic / the platform blocked it," treat that as a *flag*, not a conclusion — the flag that you are standing in the attractor.
+- **Force the cheap A/B before you build anything.** If you believe trusted/privileged input is required, you are making a testable claim: run the same action the plain way and the privileged way and *compare the observable result*. The comparison is one probe; building the privileged path is hours. Never build the escape hatch before the A/B proves you need it.
+- **Verify your assumed state first.** Before blaming the event's trust level, prove you were in the state the action needs (focused, in edit mode, correct frame, modal gone). State-not-satisfied is the higher base rate by far.
+
+The general rule: **an attractor hypothesis is defeated by a mandatory step in the process, not by a caution you hope to recall.** If a class of wrong explanation keeps recurring, encode a *gate* (a required A/B, a required state-check) at the point of temptation — because the gate runs whether or not the warning got an attention head.
 
 ## The 10 Phases
 
@@ -123,9 +140,21 @@ A table of confirmed events — things you know happened, with high probability,
 
 See `references/investigation-template.md` for the complete file template.
 
+### Phase 1.5: Calibrate Your Generative Prior (before you write a single hypothesis)
+
+Do this *before* listing any hypothesis — it sets your expectations about your own ability to name the true cause on the first pass, so the hypothesis list you're about to write doesn't quietly masquerade as the answer. It takes one paragraph in the investigation file and costs almost nothing.
+
+Write down, explicitly:
+
+1. **Your expected first-pass hit-rate.** State the prior out loud: *"Most of the hypotheses I am about to write will be wrong, and the true cause is probably not even on the list."* A reasonable default is that the correct cause is accessible before experimentation only ~20% of the time (Core Principle #11). If you have your own investigation files, measure it instead of guessing: `grep -rE "CONFIRMED|REFUTED" investigations/` and compute confirmed / (confirmed + refuted) per hypothesis — that ratio is your calibrated number. It is usually well under half.
+2. **What this commits you to.** Because your list probably omits the real cause, you owe the data an experiment before you trust *any* conclusion — including a hypothesis that "feels" confirmed by reading. Reading is where you look; running is what you know. No hypothesis graduates to a root cause on reasoning alone.
+3. **A reserved slot for the unknown.** Commit now to including the mandatory "the true cause is not yet listed" row in the Phase 2 table below, carrying real probability mass (often the *plurality*), and to running at least one experiment aimed at *revealing* a new cause — not only at discriminating among the named few.
+
+This phase is deliberately about *you*, not the bug: it is the moment to price in your own fallibility before the satisfying-story machinery starts. Skipping it is how a first-cut list hardens into false confidence. (See Core Principle #11 for the full argument.)
+
 ### Phase 2: Initial Hypotheses
 
-Before looking at any evidence, list 5-8 hypotheses with probability estimates. This prevents anchoring — the first log line seen shouldn't determine the conclusion.
+Before looking at any evidence, list 5-8 hypotheses with probability estimates. This prevents anchoring — the first log line seen shouldn't determine the conclusion. **Carry the Phase 1.5 prior in:** expect most of these to be wrong and the real cause to be unlisted — that expectation is enforced structurally by the mandatory unlisted-cause row (see the hypothesis-table rules below).
 
 #### Assumption table
 
@@ -163,7 +192,9 @@ The calibration failure also appears here: you assigned P(ordering = A→B→C�
 | H1 | Description | timing | 25% | A1, A2 | A1×A2 = 48% |
 | H2 | Description | config | 20% | A3 | A3 = 90% |
 
-**Probability discipline:** Estimates must sum to ~100% (±10%). Include an "other/unknown" hypothesis if needed. Force-ranking prevents the common mistake of investigating only the most obvious hypothesis.
+**Probability discipline:** Estimates must sum to ~100% (±10%). Force-ranking prevents the common mistake of investigating only the most obvious hypothesis.
+
+**The unlisted-cause row is MANDATORY (not "if needed").** Add an explicit row — `H?: the true cause is not yet listed / I cannot currently name it` — and give it *real* probability mass, per Core Principle #11 and the Phase 1.5 prior. On a genuinely novel symptom this row often deserves the **plurality** of the mass (e.g. 40-60%): the space of possible causes exceeds what you can enumerate, so "none of the above" is frequently the single most probable bucket. This is not a formality to pad to 100% — it is a live commitment. It obligates you, in Phase 5, to run at least one experiment aimed at *converting this row into a named hypothesis* (drive the real thing yourself, strip out a layer, instrument an intermediate value) rather than only discriminating among H1..Hn. When every named hypothesis has been refuted, this row is what's left — and it is usually where the answer was all along.
 
 **Run the maximum-pain pass (MANDATORY here).** After your first-cut probabilities, apply the maximum-pain principle (argued for above): for each hypothesis, ask how much it would cost you to accept it, then *raise* the high-pain ones (they implicate your recent change, your model, your tooling) and *lower* the exculpatory ones (they blame the platform, the library, the network) — as an explicit correction for the motivated reasoning that deflated them. If your list contains no hypothesis that implicates your own recent work, add one; its absence is a sign your brainstorming was pre-filtered by comfort. Then pick the **highest-pain** credible hypothesis to test first in Phase 5 — it is cheapest to eliminate if false and ends the investigation if true.
 
