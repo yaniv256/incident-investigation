@@ -22,6 +22,24 @@ A **10-phase investigation** that produces a single Markdown artifact as it goes
 
 Plus **Phase 0**: line up your tools *before* you investigate — degraded instruments manufacture false evidence.
 
+## Four default actions — initiate these, don't wait to be asked
+
+The methodology opens with four moves that are almost always available and almost always useful, and that investigators reliably *fail to start* on their own. The skill tells you to start them anyway:
+
+1. **Short user interview** — "When did you first notice it? What changed on your end? Has it happened before?" A two-minute interview eliminates more hypotheses than an hour of log reading, because it directly verifies the assumptions your hypotheses rest on.
+2. **Web searches** — search every error string, library name, and platform behavior *early and in parallel*. Known bugs, version gotchas, and documented behaviors are usually already written down. (This isn't a one-time step — web research is **mandatory at every phase transition**, with explicit checkpoints after evidence, after each experiment, and during the anti-pattern search.)
+3. **Instrumentation** — if the existing logging doesn't show you what you need, *add a log line that does*. Don't investigate blind when you can make the system visible; a targeted probe can confirm or kill a hypothesis in minutes.
+4. **Look at it — take a screenshot** — when the symptom is on a rendered page, look before trusting any DOM read, projection, or success flag. This one is singled out because an AI agent systematically *under-uses* it: you inherit, from the humans you're trained on, a behavior that acts as if you can see the page. You can't — and canvas-rendered apps make DOM reads lie. The screenshot is ground truth; the DOM is a hypothesis.
+
+## How the rigor actually works
+
+Underneath the phases is a small set of mechanics that make the probabilities honest rather than decorative:
+
+- **Assumptions carry probabilities, and they *cap* the hypothesis.** Every hypothesis rests on load-bearing assumptions, each with its own probability. A hypothesis can't credibly exceed the *product* of its assumptions — if H1 needs A1 (80%) and A2 (60%), H1 is capped at 48% however airtight the rest of the story. So the cheapest kills come from verifying a shared, low-probability assumption, not from running experiments.
+- **The established timeline is crime-scene ground truth.** It holds only *confirmed* events. When a hypothesis's required ordering conflicts with the timeline, the hypothesis is eliminated *with no experiment*. And a user's recollection of "when it started" is a hypothesis about the past, not a confirmed event — it's labeled unverified and given a probability below 1.0, because subjective certainty and accuracy are different things.
+- **An inversion calibration check keeps estimates real.** After assigning P(A), independently estimate P(not A); if they don't sum to ~100%, you haven't actually reasoned about it. This catches the compound-assumption trap where the alternatives you ignored secretly hold most of the mass.
+- **Reason about code through the graph, not grep.** A code-index (callers, callees, data-flow) answers the questions an investigation actually asks — "who calls this?", "which caller lacks the paired guard?", "where is the shared resource mutated?" — completely, where text search answers them partially and noisily. Grep is the fallback for non-code text and unindexed projects, not the default. This matters most in the **anti-pattern search** (Phase 9), where an anti-pattern is a *structural shape*, and spawned search agents must be told explicitly to use the graph or they default to grep.
+
 ## The idea it's built around: the maximum-pain principle
 
 > Of the competing explanations, the one that is most **painful to accept** — the one that implicates your own recent change, your own model, your own tooling — is disproportionately likely to be true. Test it first.
@@ -52,9 +70,8 @@ These live in `SKILL.md` as Core Principles #11–#12, and they reshape the whol
 
 ## Other load-bearing principles
 
-- **Hypotheses span multiple categories** — a monoculture of hypotheses is the biggest risk; three strikes in one category triggers a mandatory pivot.
-- **The code graph, not grep** — reason about code through a code-index (callers, callees, data-flow), which answers "who calls this?" and "which of these lacks the paired guard?" — the questions an investigation actually asks. Grep is the fallback, not the default.
-- **Fix the instance, then the class** — the bug that caused this incident almost always exists elsewhere.
+- **Hypotheses span multiple categories** — a monoculture of hypotheses is the biggest risk; three strikes in one category triggers a mandatory pivot (`references/assumption-lock-in.md`).
+- **Fix the instance, then the class** — the bug that caused this incident almost always exists elsewhere; Phase 9 searches the whole codebase for the anti-pattern, often finding 10-100× more instances than the original.
 - **Attractor hypotheses need a gate, not a caution** — some exculpatory explanations ("the input wasn't trusted," "the platform blocked it") are *attractors*: whatever the real failure, your reasoning keeps sliding into the same convenient story. A note-to-self doesn't defeat them (a quiet caution loses the competition for attention to the loud attractor); a **mandatory step at the point of temptation** does — e.g. a required cheap A/B before you build the privileged escape hatch.
 
 ## Layout
