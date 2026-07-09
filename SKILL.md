@@ -12,6 +12,12 @@ A structured, hypothesis-driven approach to debugging production incidents. Prod
 
 Invoke this methodology when a system exhibits unexpected behavior under load, over time, or after deployment — not for logic bugs caught in development. The distinguishing feature is that the symptom is separated from the cause by time, scale, or indirection.
 
+## Run To The End — Do Not Go Idle Mid-Investigation (standing rule, inherited by every phase)
+
+Once this investigation is started, **do NOT stop, end your turn, or ask the user a blocking question between phases.** The whole point of the ten phases is that they run *in order, to completion* — through blame (Phase 7), the immediate fix (Phase 8), the anti-pattern search (Phase 9), and the comprehensive remediation plan (Phase 10). Those late phases are exactly the ones a tiring investigator drops; dropping them is the failure this methodology exists to prevent. After finishing a phase, proceed to the next one (when run as a chained-prompt, call `chain_complete` for the next phase). The investigation is **not** closed until Phase 10 remediation is done.
+
+**"Stop and ask the user" is an attractor, not a valid exit.** Blocking on a question feels responsible, but it is the same behavior-space attractor as declaring yourself "blocked" (see Phase 2) — it *ends the pressure* while feeling justified, which is exactly why it is disproportionately the wrong move. If the user is not reachable, that does **not** halt the investigation: proceed on your best judgement and the evidence you can gather, recording every unverified assumption explicitly (see "If the user is not reachable" below). If you believe you are truly blocked, run the cheapest disproof first — a false blocker feels identical to a real one. This methodology was created to support *autonomous* operation; running it all the way to remediation is the whole contract.
+
 ## Four Default Actions — Initiate These, Don't Wait to Be Asked
 
 These four actions are almost always available and almost always useful. Investigators tend not to initiate them without being prompted. Initiate them anyway.
