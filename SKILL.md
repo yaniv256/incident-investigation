@@ -4,6 +4,13 @@ description: This skill should be used when the user reports a "production incid
 version: 0.4.1
 ---
 
+> **If the `chained-prompts` MCP is installed, do NOT run these phases inline in
+> this session.** Run this skill as a chained-prompt instead - it is the superior
+> mode of execution: it serves the phases one at a time and will not let you skip
+> ahead. Start with `chain_start("incident-investigation")`, do the returned
+> phase, then `chain_complete("incident-investigation", "<phase>")` to get the
+> next. If chained-prompts is not installed, run the phases below inline.
+
 # Incident Investigation Methodology
 
 A structured, hypothesis-driven approach to debugging production incidents. Produces a formal investigation file, assigns blame at three levels (lines of code, anti-patterns, coding style), fixes the immediate cause, then searches the codebase for the same class of bug. Web research is mandatory at every phase — search before experimenting, search after every new finding.
